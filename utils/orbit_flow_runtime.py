@@ -48,7 +48,7 @@ def add_architecture_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--spatial_clock",
         action=argparse.BooleanOptionalAction,
-        default=False,
+        default=True,
         help=(
             "enable endpoint-preserving pixel-wise Flow clocks and the routed "
             "local boundary velocity expert"
@@ -118,7 +118,7 @@ def add_loss_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--lambda_clock",
         type=float,
-        default=0.0,
+        default=0.1,
         help="weight for spatial-clock offset, boundary-router and smoothness supervision",
     )
     parser.add_argument("--clock_offset_weight", type=float, default=1.0)
@@ -147,7 +147,7 @@ def build_model_from_args(args: argparse.Namespace) -> NuisanceOrbitFlowRWKV:
         vector_field=value("vector_field", "rwkv"),
         time_conditioning=value("time_conditioning", "decay"),
         max_time_delta=value("max_time_delta", 0.1),
-        spatial_clock=value("spatial_clock", False),
+        spatial_clock=value("spatial_clock", True),
         spatial_clock_max_warp=value("spatial_clock_max_warp", 0.75),
         spatial_clock_local_scale=value("spatial_clock_local_scale", 0.10),
         flow_time_sampling=value("flow_time_sampling", "uniform"),
@@ -167,7 +167,7 @@ def build_model_from_args(args: argparse.Namespace) -> NuisanceOrbitFlowRWKV:
         lambda_boundary=value("lambda_boundary", 0.0),
         lambda_lovasz=value("lambda_lovasz", 0.0),
         lambda_direct=value("lambda_direct", 0.0),
-        lambda_clock=value("lambda_clock", 0.0),
+        lambda_clock=value("lambda_clock", 0.1),
         seg_pos_weight=value("seg_pos_weight", 1.0),
         boundary_kernel_size=value("boundary_kernel_size", 5),
         clock_offset_weight=value("clock_offset_weight", 1.0),

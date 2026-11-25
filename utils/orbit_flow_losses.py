@@ -83,7 +83,7 @@ class OrbitFlowLoss(nn.Module):
         lambda_boundary: float = 0.0,
         lambda_lovasz: float = 0.0,
         lambda_direct: float = 0.0,
-        lambda_clock: float = 0.0,
+        lambda_clock: float = 0.1,
         seg_pos_weight: float = 1.0,
         boundary_kernel_size: int = 5,
         spatial_clock_max_warp: float = 0.75,
@@ -167,7 +167,7 @@ class OrbitFlowLoss(nn.Module):
             mask_logits, mask_orbit, self.seg_pos_weight
         ) + dice_loss_with_logits(mask_logits, mask_orbit)
         loss_seg = loss_seg_identity + self.orbit_seg_weight * loss_seg_all
-        loss_distance = F.smooth_l1_loss(torch.sigmoid(distance_logits), distance_orbit)
+        loss_distance = F.smooth_l1_loss(distance_logits, distance_orbit)
 
         zero = mask_logits.new_zeros(())
         loss_fm = zero
@@ -190,7 +190,7 @@ class OrbitFlowLoss(nn.Module):
         loss_geometry = (
             balanced_bce_with_logits(teacher_mask_logits, mask, self.seg_pos_weight)
             + dice_loss_with_logits(teacher_mask_logits, mask)
-            + F.smooth_l1_loss(torch.sigmoid(teacher_distance_logits), distance_target)
+            + F.smooth_l1_loss(teacher_distance_logits, distance_target)
         )
 
 

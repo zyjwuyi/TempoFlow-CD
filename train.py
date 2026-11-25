@@ -91,7 +91,7 @@ def parse_args() -> argparse.Namespace:
         help="resume model, optimizer, scheduler, scaler, epoch and best metrics from a training checkpoint",
     )
     parser.add_argument("--output_dir", default="outputs/train")
-    parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--devices", type=int, default=1)
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--num_workers", type=int, default=4)
@@ -109,7 +109,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--lr_encoder", type=float, default=1e-5)
-    parser.add_argument("--lr_new", type=float, default=1e-4)
+    parser.add_argument("--lr_new", type=float, default=1e-5)
     parser.add_argument(
         "--lr_direct",
         type=float,

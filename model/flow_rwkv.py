@@ -321,7 +321,7 @@ class FlowTimeRWKVBlock(nn.Module):
         time_conditioning: str = "decay",
         max_time_delta: float = 0.1,
         time_embedding_dim: int = 64,
-        spatial_clock: bool = False,
+        spatial_clock: bool = True,
         spatial_clock_max_warp: float = 0.75,
         spatial_clock_local_scale: float = 0.10,
     ) -> None:
@@ -388,7 +388,7 @@ class MultiScaleFlowRWKV(nn.Module):
         flow_channels: Sequence[int],
         time_conditioning: str = "decay",
         max_time_delta: float = 0.1,
-        spatial_clock: bool = False,
+        spatial_clock: bool = True,
         spatial_clock_max_warp: float = 0.75,
         spatial_clock_local_scale: float = 0.10,
     ) -> None:

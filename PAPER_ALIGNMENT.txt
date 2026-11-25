@@ -1,0 +1,54 @@
+TempoFlow-CD manuscript parameter alignment
+
+Reference: user-supplied TempoFlow_CD__Flow_Matching_With_Local_Time_Conditioning_for_Remote_Sensing_Change_Detection-24.pdf
+Base revision: 98af86442703ccd95a1397b3c225074dbcbcb1f2
+
+Changed:
+- train.py: batch_size 4 -> 16 (p. 8, Implementation Details).
+- train.py: lr_new 1e-4 -> 1e-5; lr_encoder was already 1e-5 (p. 8).
+- Model constructors, argument helpers and fallback builder: enable CASC by
+  default and set lambda_clock=0.1. train.py already enabled both (pp. 4, 8).
+- Both distance regression branches now apply smooth-L1 to raw distance
+  predictions, without sigmoid (p. 5, III-D and Eq. 22; p. 6, III-F).
+- README: settings above, two-GPU batch_size=8 for total batch 16, and full
+  author list from the supplied manuscript.
+
+Verified settings already matching the manuscript:
+- AdamW; 200 epochs; input 256 x 256; ImageNet normalization.
+- K=3 views; original pair plus two nuisance views; medium strength; 2-4
+  operations from nine types. Temporal-image parameters sampled separately.
+- Table II: multiplicative gain [0.75,1.25], channel gain [0.85,1.15],
+  gamma [0.75,1.35]. Strong robustness-test ranges are not training defaults.
+- Shared global t sampled uniformly; four uniform Euler steps; dt=0.25.
+- rho=0.75; local residual alpha=0.1; spatial FiLM epsilon=0.1.
+- lambda_m=1, lambda_d=0.2, lambda_0=1, lambda_geo=0.5, mu=0.5.
+- lambda_trans=1 (lambda_fm), lambda_clock=0.1, lambda_quiet=0.05.
+- lambda_ep=0.3 (lambda_orbit); effective lambda_cons=0.03, computed as
+  lambda_orbit * orbit_variance_weight = 0.3 * 0.1. Changing the latter
+  directly to 0.03 would incorrectly produce an effective weight of 0.009.
+- lambda_off=1, lambda_bnd=0.5, lambda_sm=0.05.
+- Scale weights (1,1,0.75,0.5), clock normalization by 3.25, pooled quiet
+  normalization with no division by 3.25.
+- Shared geometry targets retain gradients; mask outputs use logits for
+  numerically stable BCE and sigmoid for probability-based Dice/metrics.
+
+Scope and retained implementation choices:
+The manuscript does not specify numerical EMA, warmup, weight decay, gradient
+clipping, BCE positive weight, boundary kernel size, mixed precision, or all
+backbone dimensions. Existing values remain; they are not asserted to be
+paper-prescribed. The released binary RGB pipeline does not provide the
+additional semantic/heterogeneous and robustness evaluation protocols.
+Optional ablation flags remain available. In particular, the legacy loss API
+weights FM and orbit terms separately; the correspondence above is for the
+paper's default lambda_trans=1, not arbitrary non-default weight combinations.
+Batch size is per process: choose 16/world_size when using distributed training.
+
+Validation performed:
+- Evaluated the actual training parser in isolation and checked paper defaults.
+- Checked exact-target raw-distance loss equals zero and gradients are finite.
+- Compared transport-loss coefficients and pooled quiet loss to analytic values.
+- Checked local-phase bounds and preservation of t=0 and t=1 endpoints.
+- Compiled all Python sources for syntax and ran git diff --check.
+All checks passed. No full training or accuracy reproduction was performed.
+The environment lacks albumentations, so the full training entry point and
+backbone CUDA compilation were not exercised.
